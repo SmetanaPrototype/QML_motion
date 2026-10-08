@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
         &app,
         []() { QCoreApplication::exit(-1); },
         Qt::QueuedConnection);
-    engine.loadFromModule("Motion", "Main");
+    engine.load(QUrl("qrc:/qt/qml/Motion/Main.qml"));
 
     return app.exec();
 }
