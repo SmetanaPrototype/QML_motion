@@ -13,7 +13,7 @@ qt_add_executable(motion
 )
 
 qt_add_qml_module(motion
-    URI motion
+    URI Motion
     VERSION 1.0
     QML_FILES
         Main.qml
