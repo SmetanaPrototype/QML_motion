@@ -1,6 +1,8 @@
 name: Build and Release
+
 permissions:
   contents: write
+
 on:
   push:
     branches: [ main, master ]
@@ -44,11 +46,13 @@ jobs:
           build/Release/*.dll
           build/Release/qml/
 
+    - name: Create ZIP archive
+      if: github.event_name == 'release'
+      run: |
+        Compress-Archive -Path build/Release/* -DestinationPath motion-Windows-x64.zip
+
     - name: Upload to Release
       if: github.event_name == 'release'
       uses: softprops/action-gh-release@v2
       with:
-        files: |
-          build/Release/motion.exe
-          build/Release/*.dll
-          build/Release/qml/
+        files: motion-Windows-x64.zip
