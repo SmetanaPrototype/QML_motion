@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Motion
+Comment=Qt/QML app that plots a sine function
+Exec=motion
+Icon=motion
+Categories=Utility;Science;
+Terminal=false
