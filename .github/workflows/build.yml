@@ -42,3 +42,12 @@ jobs:
           build/Release/motion.exe
           build/Release/*.dll
           build/Release/qml/
+
+    - name: Upload to Release
+      if: github.event_name == 'release'
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          build/Release/motion.exe
+          build/Release/*.dll
+          build/Release/qml/
