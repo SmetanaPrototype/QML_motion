@@ -46,13 +46,83 @@ jobs:
           build/Release/*.dll
           build/Release/qml/
 
-    - name: Create ZIP archive
+    - name: Create archives
       if: github.event_name == 'release'
       run: |
         Compress-Archive -Path build/Release/* -DestinationPath motion-Windows-x64.zip
+        tar -czf motion-Windows-x64.tar.gz -C build/Release .
 
     - name: Upload to Release
       if: github.event_name == 'release'
       uses: softprops/action-gh-release@v2
       with:
-        files: motion-Windows-x64.zip
+        files: |
+          motion-Windows-x64.zip
+          motion-Windows-x64.tar.gz
+
+  build-linux:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.8.2'
+        cache: true
+        add-tools-to-path: true
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libgl1-mesa-dev \
+          libglu1-mesa-dev \
+          libxkbcommon-dev \
+          libxkbcommon-x11-dev \
+          libxcb-cursor0 \
+          libfuse2 \
+          fuse \
+          wget \
+          file
+
+    - name: Configure CMake
+      run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      run: cmake --build build -j$(nproc)
+
+    - name: Download linuxdeploy
+      run: |
+        wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+        wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+        chmod +x linuxdeploy-x86_64.AppImage linuxdeploy-plugin-qt-x86_64.AppImage
+
+    - name: Build AppImage
+      run: |
+        export QML_SOURCES_PATHS=$PWD
+        ./linuxdeploy-x86_64.AppImage \
+          --appdir AppDir \
+          --executable build/motion \
+          --desktop-file motion.desktop \
+          --icon-file motion.png \
+          --plugin qt \
+          --output appimage
+
+    - name: Rename AppImage
+      run: |
+        mv Motion*.AppImage motion-Linux-x86_64.AppImage || mv *.AppImage motion-Linux-x86_64.AppImage
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: motion-Linux
+        path: motion-Linux-x86_64.AppImage
+
+    - name: Upload to Release
+      if: github.event_name == 'release'
+      uses: softprops/action-gh-release@v2
+      with:
+        files: motion-Linux-x86_64.AppImage
