@@ -113,7 +113,7 @@ jobs:
 
     - name: Rename AppImage
       run: |
-        mv Motion*.AppImage motion-Linux-x86_64.AppImage || mv *.AppImage motion-Linux-x86_64.AppImage
+        find . -maxdepth 1 -name "*.AppImage" -exec mv {} motion-Linux-x86_64.AppImage \;
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
