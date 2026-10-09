@@ -96,14 +96,16 @@ jobs:
 
     - name: Download linuxdeploy
       run: |
-        wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-        wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
-        chmod +x linuxdeploy-x86_64.AppImage linuxdeploy-plugin-qt-x86_64.AppImage
+        mkdir -p tools
+        wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -O tools/linuxdeploy-x86_64.AppImage
+        wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage -O tools/linuxdeploy-plugin-qt-x86_64.AppImage
+        chmod +x tools/linuxdeploy-x86_64.AppImage tools/linuxdeploy-plugin-qt-x86_64.AppImage
 
     - name: Build AppImage
       run: |
         export QML_SOURCES_PATHS=$PWD
-        ./linuxdeploy-x86_64.AppImage \
+        export PATH=$PWD/tools:$PATH
+        ./tools/linuxdeploy-x86_64.AppImage \
           --appdir AppDir \
           --executable build/motion \
           --desktop-file motion.desktop \
@@ -113,7 +115,7 @@ jobs:
 
     - name: Rename AppImage
       run: |
-        find . -maxdepth 1 -name "*.AppImage" -exec mv {} motion-Linux-x86_64.AppImage \;
+        mv ./*.AppImage motion-Linux-x86_64.AppImage
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
@@ -126,3 +128,4 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         files: motion-Linux-x86_64.AppImage
+  
